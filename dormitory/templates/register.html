@@ -10,7 +10,9 @@
   <link rel="stylesheet" href="../static/css/icheck-bootstrap.min.css">
   <!-- Theme style -->
   <link rel="stylesheet" href="../static/css/adminlte.min.css">
+  <script src="../static/js/jquery.min.js"></script>
 </head>
+
 <body class="hold-transition register-page">
 <div class="register-box">
   <div class="card card-outline card-primary">
@@ -20,52 +22,121 @@
     <div class="card-body">
       <p class="login-box-msg">注册你的账号</p>
 
-      <form action="../../index.html" method="post">
+      <form action = "" method="post">
+        {% csrf_token %}
         <div class="input-group mb-3">
-          <input type="text" class="form-control" placeholder="姓名">
+          <input id = "name" type="text" class="form-control" placeholder="姓名">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-user"></span>
             </div>
           </div>
         </div>
+
         <div class="input-group mb-3">
-          <input type="email" class="form-control" placeholder="学号">
+          <input id = "stu_num" type="text" class="form-control" placeholder="学号">
           <div class="input-group-append">
             <div class="input-group-text">
-              <span class="fas fa-envelope"></span>
+              <span class="fa fa-id-card"></span>
             </div>
           </div>
         </div>
+
         <div class="input-group mb-3">
-          <input type="password" class="form-control" placeholder="密码">
+          <input id = "male" type="text" list="itemlist" class="form-control" placeholder="性别">
+          <datalist id="itemlist">
+              <option values="男">男</option>
+              <option values="女">女</option>
+          </datalist>
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fa fa-venus"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="input-group mb-3">
+          <input id = "password" type="password" class="form-control" placeholder="密码">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-lock"></span>
             </div>
           </div>
         </div>
+
         <div class="input-group mb-3">
-          <input type="password" class="form-control" placeholder="确认密码">
+          <input id = "password_comfirm" type="password" class="form-control" placeholder="确认密码">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-lock"></span>
             </div>
           </div>
         </div>
+
         <div class="row">
           <!-- /.col -->
           <div class="col-4">
-            <button type="submit" class="btn btn-primary btn-block">注册</button>
+            <button id = "register" type="button" class="btn btn-primary btn-block">注册</button>
           </div>
           <!-- /.col -->
         </div>
+
       </form>
 
-      <a href="login.html" class="text-center">我已有账号</a>
+      <a href="login" class="text-center">我已有账号</a>
+
 
 </div>
 <!-- /.register-box -->
+
+<script>
+    $("#register").click(
+        function(){
+            var name = $("#name").val();
+            var stu_num = $("#stu_num").val();
+            var password = $("#password").val();
+            var password_comfirm = $("#password_comfirm").val();
+            var male = $("#male").val();
+
+            var url = "/register/registerajax/";
+            var send_data = {
+                "name":name,
+                "password":password,
+                "stu_num":stu_num,
+                "male":male,
+                "csrfmiddlewaretoken":"{{ csrf_token }}"
+            };
+            if(password != password_comfirm){
+                alert("密码不一致，请重新注册");
+                $("#password").focus();
+                return ;
+            }
+
+            $.ajax({
+                url:url,
+                type:"post",
+                data:send_data,
+                dataType:"json",
+                success:function(data){
+                    alert(data["msg"]);
+                    if(data["code"] == 1000){
+                        console.log("123");
+                        window.location.href = "/login";
+                    }
+                },
+                error:function(error){
+                    alert(error["msg"]);
+                    console.log(error);
+                }
+            })
+        }
+    )
+
+</script>
+
+
+
+
 
 <!-- jQuery -->
 <script src="../static/js/jquery.min.js"></script>
