@@ -76,8 +76,12 @@ WSGI_APPLICATION = 'internet_homework.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'dormitory',
+        'USER': 'root',
+        'PASSWORD': '123456',
+        'HOST': '192.168.0.2',
+        'PORT': '3306',
     }
 }
 
