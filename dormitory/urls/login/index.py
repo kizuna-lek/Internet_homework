@@ -4,4 +4,5 @@ from dormitory.views.login import views
 
 urlpatterns = [
     path("",views.login),
+    path("/loginajax/",views.loginajax),
 ]

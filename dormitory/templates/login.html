@@ -11,8 +11,11 @@
   <link rel="stylesheet" href="../static/css/icheck-bootstrap.min.css">
   <!-- Theme style -->
   <link rel="stylesheet" href="../static/css/adminlte.min.css">
+  <script src="../static/js/jquery.min.js"></script>
 </head>
+
 <body class="hold-transition login-page">
+
 <div class="login-box">
   <!-- /.login-logo -->
   <div class="card card-outline card-primary">
@@ -22,27 +25,30 @@
     <div class="card-body">
       <p class="login-box-msg">登录你的账号</p>
 
-      <form action="../../index3.html" method="post">
+      <form action= "" method="post">
+          {% csrf_token %}
         <div class="input-group mb-3">
-          <input type="email" class="form-control" placeholder="学号">
+          <input id="stu_num" type="text" class="form-control" placeholder="学号">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class=" fa fa-id-card"></span>
             </div>
           </div>
         </div>
+
         <div class="input-group mb-3">
-          <input type="password" class="form-control" placeholder="密码">
+          <input id="password" type="password" class="form-control" placeholder="密码">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-lock"></span>
             </div>
           </div>
         </div>
+
         <div class="row">
           <!-- /.col -->
           <div class="col-4">
-            <button type="submit" class="btn btn-primary btn-block">登录</button>
+            <button id="login" type="button" class="btn btn-primary btn-block">登录</button>
           </div>
           <!-- /.col -->
         </div>
@@ -57,6 +63,38 @@
   <!-- /.card -->
 </div>
 <!-- /.login-box -->
+
+<script>
+    $("#login").click(
+        function(){
+            var stu_num = $("#stu_num").val();
+            var password = $("#password").val();
+            var url = "/login/loginajax/";
+
+            var send_data = {
+                "stu_num":stu_num,
+                "password":password,
+                "csrfmiddlewaretoken":"{{csrf_token}}"
+            }
+
+            $.ajax({
+                url:url,
+                type:"post",
+                data:send_data,
+                dataType:"json",
+                success:function(data){
+                    alert(data["msg"]);
+                    if(data["code"] == 1000){
+                        window.location.href = "/main";
+                    }
+                },
+                error:function(error){
+                    alert(error["msg"]);
+                }
+            })
+        }
+    )
+</script>
 
 <!-- jQuery -->
 <script src="../static/js/jquery.min.js"></script>
