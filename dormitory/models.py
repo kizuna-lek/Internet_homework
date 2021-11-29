@@ -8,120 +8,6 @@
 from django.db import models
 
 
-class AuthGroup(models.Model):
-    name = models.CharField(unique=True, max_length=150)
-
-    class Meta:
-        managed = False
-        db_table = 'auth_group'
-
-
-class AuthGroupPermissions(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    group = models.ForeignKey(AuthGroup, models.DO_NOTHING)
-    permission = models.ForeignKey('AuthPermission', models.DO_NOTHING)
-
-    class Meta:
-        managed = False
-        db_table = 'auth_group_permissions'
-        unique_together = (('group', 'permission'),)
-
-
-class AuthPermission(models.Model):
-    name = models.CharField(max_length=255)
-    content_type = models.ForeignKey('DjangoContentType', models.DO_NOTHING)
-    codename = models.CharField(max_length=100)
-
-    class Meta:
-        managed = False
-        db_table = 'auth_permission'
-        unique_together = (('content_type', 'codename'),)
-
-
-class AuthUser(models.Model):
-    password = models.CharField(max_length=128)
-    last_login = models.DateTimeField(blank=True, null=True)
-    is_superuser = models.IntegerField()
-    username = models.CharField(unique=True, max_length=150)
-    first_name = models.CharField(max_length=150)
-    last_name = models.CharField(max_length=150)
-    email = models.CharField(max_length=254)
-    is_staff = models.IntegerField()
-    is_active = models.IntegerField()
-    date_joined = models.DateTimeField()
-
-    class Meta:
-        managed = False
-        db_table = 'auth_user'
-
-
-class AuthUserGroups(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    user = models.ForeignKey(AuthUser, models.DO_NOTHING)
-    group = models.ForeignKey(AuthGroup, models.DO_NOTHING)
-
-    class Meta:
-        managed = False
-        db_table = 'auth_user_groups'
-        unique_together = (('user', 'group'),)
-
-
-class AuthUserUserPermissions(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    user = models.ForeignKey(AuthUser, models.DO_NOTHING)
-    permission = models.ForeignKey(AuthPermission, models.DO_NOTHING)
-
-    class Meta:
-        managed = False
-        db_table = 'auth_user_user_permissions'
-        unique_together = (('user', 'permission'),)
-
-
-class DjangoAdminLog(models.Model):
-    action_time = models.DateTimeField()
-    object_id = models.TextField(blank=True, null=True)
-    object_repr = models.CharField(max_length=200)
-    action_flag = models.PositiveSmallIntegerField()
-    change_message = models.TextField()
-    content_type = models.ForeignKey('DjangoContentType', models.DO_NOTHING, blank=True, null=True)
-    user = models.ForeignKey(AuthUser, models.DO_NOTHING)
-
-    class Meta:
-        managed = False
-        db_table = 'django_admin_log'
-
-
-class DjangoContentType(models.Model):
-    app_label = models.CharField(max_length=100)
-    model = models.CharField(max_length=100)
-
-    class Meta:
-        managed = False
-        db_table = 'django_content_type'
-        unique_together = (('app_label', 'model'),)
-
-
-class DjangoMigrations(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    app = models.CharField(max_length=255)
-    name = models.CharField(max_length=255)
-    applied = models.DateTimeField()
-
-    class Meta:
-        managed = False
-        db_table = 'django_migrations'
-
-
-class DjangoSession(models.Model):
-    session_key = models.CharField(primary_key=True, max_length=40)
-    session_data = models.TextField()
-    expire_date = models.DateTimeField()
-
-    class Meta:
-        managed = False
-        db_table = 'django_session'
-
-
 class DormitoryNum(models.Model):
     dormitory_name = models.CharField(max_length=30)
     dormitory_num = models.IntegerField(unique=True, blank=True, null=True)
@@ -131,8 +17,32 @@ class DormitoryNum(models.Model):
         db_table = 'dormitory_num'
 
 
+class Order(models.Model):
+    stu_num = models.CharField(max_length=254, blank=True, null=True)
+    dormitory_num = models.IntegerField()
+    male = models.IntegerField()
+    people_num = models.IntegerField()
+    is_correct = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'order'
+
+
+class OrderInfo(models.Model):
+    stu_num = models.IntegerField()
+    room_name = models.CharField(max_length=30)
+    room_mate1 = models.CharField(max_length=254)
+    room_mate2 = models.CharField(max_length=254)
+    room_mate3 = models.CharField(max_length=254)
+
+    class Meta:
+        managed = False
+        db_table = 'order_info'
+
+
 class RoomNum(models.Model):
-    dormitory_num = models.IntegerField(blank=True, null=True)
+    dormitory_num = models.IntegerField()
     unit_num = models.IntegerField()
     room_name = models.CharField(max_length=30)
     male = models.IntegerField()
@@ -142,6 +52,21 @@ class RoomNum(models.Model):
     class Meta:
         managed = False
         db_table = 'room_num'
+
+
+class RoomStuInfo(models.Model):
+    room_id = models.IntegerField()
+    room_name = models.CharField(max_length=30)
+    room_mate1 = models.CharField(max_length=254)
+    room_mate2 = models.CharField(max_length=254)
+    room_mate3 = models.CharField(max_length=254)
+    room_mate4 = models.CharField(max_length=254)
+    room_mate5 = models.CharField(max_length=254)
+    room_mate6 = models.CharField(max_length=254)
+
+    class Meta:
+        managed = False
+        db_table = 'room_stu_info'
 
 
 class UnitNum(models.Model):
@@ -158,6 +83,7 @@ class UserInfo(models.Model):
     stu_num = models.CharField(unique=True, max_length=254, blank=True, null=True)
     name = models.CharField(max_length=30)
     male = models.IntegerField()
+    havedor = models.IntegerField(blank=True, null=True)
 
     class Meta:
         managed = False

@@ -1,8 +1,142 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
 <head>
-<meta charset="utf-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dormitory</title>
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="../static/css/bootstrap.min.css">
+    <link href="../static/css/jumbotron-narrow.css" rel="stylesheet">
+    <script src="../static/js/jquery.min.js"></script>
 </head>
+
 <body>
+    <a href="/main/logout" class="text-center" style="float: right">log out</a>
+
+    <div class="container">
+
+        <div class="header clearfix">
+            <nav class="navbar navbar-default">
+                <div class="container-fluid">
+                    <!-- Brand and toggle get grouped for better mobile display -->
+                    <div class="navbar-header">
+                        <a class="navbar-brand">同住人学号</a>
+                    </div>
+                    <div class="col-lg-6">
+                        <form class="navbar-form navbar-left">
+                            {% csrf_token %}
+                            <div class="input-group">
+                                <input id="room_mate1" class="form-control"type="text" placeholder="请输入队友1学号">
+                            </div>
+                            <div class="input-group">
+                                <input id="room_mate2" class="form-control"type="text" placeholder="请输入队友2学号">
+                            </div>
+                            <div class="input-group">
+                                <input id="room_mate3" class="form-control"type="text" placeholder="请输入队友3学号">
+                            </div>
+                            <div>
+                                <p>最多可支持4人组队</p>
+                                <p>若不满4人，则按实际人数即可</p>
+                            </div>
+                            <div class="input-group">
+                              <input id = "dor_num" type="text" list="itemlist" class="form-control" placeholder="请选择楼号">
+                              <datalist id="itemlist">
+                                <option values=5>5</option>
+                                <option values=8>8</option>
+                                <option values=9>9</option>
+                                <option values=13>13</option>
+                                <option values=14>14</option>
+                              </datalist>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </nav>
+        </div>
+
+        <div class="jumbotron">
+            <h1>公告板</h1>
+            <p class="lead">
+            {{ name }}同学你好，欢迎使用本网站进行宿舍的选择<br>
+            若为组队抢宿舍，请在公告板上方填写同住人信息及所抢楼号<br>
+            信息填写完毕，点击下方“马上开抢”即可进行抢宿舍
+            </p>
+            <p>
+                <button class="btn btn-lg btn-success" id="choose" type="button">马上开抢</button>
+            </p>
+        </div>
+
+        <div class="row marketing ">
+            <div class="panel panel-default ">
+                <div class="panel-heading "><span class="glyphicon glyphicon-pushpin " aria-hidden="true "></span></div>
+                <div class="col-lg-12 ">
+                    <!--<div class="panel-body "></div> -->
+                    <table class="table table-striped ">
+                        <thead>
+                            <tr>
+                                <th><span class="glyphicon glyphicon-home " aria-hidden="true "></span>宿舍楼号</th>
+                                <th><span class="glyphicon glyphicon-stats " aria-hidden="true "></span>剩余容量</th>
+                                <th><span class="glyphicon glyphicon-comment " aria-hidden="true "></span>备注</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for line in dor_list %}
+                            <tr>
+                                <td>{{line.dormitory_num}}</td>
+                                <td>{{line.release_room}}</td>
+                                <td>{{line.remarks}}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- /container -->
+
+    <script>
+        $("#choose").click(
+            function(){
+                var room_mate1 = $("#room_mate1").val();
+                var room_mate2 = $("#room_mate2").val();
+                var room_mate3 = $("#room_mate3").val();
+                var dor_num = $("#dor_num").val();
+                var url = "/main/chooseajax/";
+
+                var send_data = {
+                    "room_mate1":room_mate1,
+                    "room_mate2":room_mate2,
+                    "room_mate3":room_mate3,
+                    "dor_num":dor_num,
+                    "csrfmiddlewaretoken":"{{csrf_token}}"
+                };
+
+                $.ajax({
+                    url:url,
+                    type:"post",
+                    data:send_data,
+                    dataType:"json",
+                    success:function(data){
+                        console.log(data["msg"]);
+                        alert(data["msg"]);
+                        if(data["code"] == 1000){
+                            window.location.href = "/main/result";
+                        }
+                    },
+                    error:function(error){
+                        alert(error["msg"]);
+                    }
+                })
+            }
+        )
+    </script>
+
+
+    <script src="../static/js/jquery.min.js"></script>
 </body>
+
 </html>
+
