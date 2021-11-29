@@ -74,7 +74,7 @@ def chooseajax(request):
     #往下才开始写数据库，上述错误不计入订单
     room_list = models.RoomNum.objects.filter(dormitory_num = dor_num)
     for i in room_list:
-        if i.free_beds >= len(room_mate)+1:
+        if i.free_beds >= len(room_mate)+1 and i.male == stu_male:
             result = {"code":1000,"msg":"恭喜您，抢宿舍成功!"}
             room_id = i.id
             room_name = i.room_name
@@ -114,39 +114,68 @@ def chooseajax(request):
     room.save()
 
     #Room_stu_info表
+    room_mate.append(stu_num)
     try:
         room_stu = models.RoomStuInfo.objects.get(room_id=room_id)
-        for i in range(len(room_mate)+1):
-            if room_stu.room_mate1:
+        for i in range(len(room_mate)):
+            if len(room_stu.room_mate1) == 0:
                 room_stu.room_mate1 = room_mate[i]
                 break
-            if room_stu.room_mate2:
+            if len(room_stu.room_mate2) == 0:
                 room_stu.room_mate2 = room_mate[i]
                 break
-            if room_stu.room_mate3:
+            if len(room_stu.room_mate3) == 0:
                 room_stu.room_mate3 = room_mate[i]
                 break
-            if room_stu.room_mate4:
+            if len(room_stu.room_mate4):
                 room_stu.room_mate4 = room_mate[i]
                 break
-            if room_stu.room_mate5:
+            if len(room_stu.room_mate5):
                 room_stu.room_mate5 = room_mate[i]
                 break
-            if room_stu.room_mate6:
+            if len(room_stu.room_mate6):
                 room_stu.room_mate6 = room_mate[i]
         room_stu.save()
     except models.RoomStuInfo.DoesNotExist:
-        if len(room_mate) == 0:
-            models.RoomStuInfo.objects.create(room_id=room_id, room_name=room_name,room_mate1 = stu_num)
-        elif len(room_mate) == 1:
-            models.RoomStuInfo.objects.create(room_id=room_id, room_name=room_name,room_mate1=stu_num,room_mate2=room_mate[0])
+        if len(room_mate) == 1:
+            models.RoomStuInfo.objects.create(room_id=room_id, room_name=room_name,room_mate1 = room_mate[0])
         elif len(room_mate) == 2:
-            models.RoomStuInfo.objects.create(room_id=room_id, room_name=room_name,room_mate1 = stu_num,room_mate2=room_mate[0],room_mate3=room_mate[1])
+            models.RoomStuInfo.objects.create(room_id=room_id, room_name=room_name,room_mate1=room_mate[0],room_mate2=room_mate[1])
+        elif len(room_mate) == 3:
+            models.RoomStuInfo.objects.create(room_id=room_id, room_name=room_name,room_mate1 = room_mate[0],room_mate2=room_mate[1],room_mate3=room_mate[2])
         else:
-            models.RoomStuInfo.objects.create(room_id=room_id, room_name=room_name,room_mate1 = stu_num,room_mate2=room_mate[0],room_mate3=room_mate[1],room_mate4=room_mate[2])
+            models.RoomStuInfo.objects.create(room_id=room_id, room_name=room_name,room_mate1 = room_mate[0],room_mate2=room_mate[1],room_mate3=room_mate[2],room_mate4=room_mate[3])
 
     return JsonResponse(result)
 
 @login_required
 def result(request):
-    return render(request,"result.html")
+    current_user = request.user
+    stu_num = current_user.username
+    name = models.UserInfo.objects.get(stu_num = stu_num).name
+    room_name = models.OrderInfo.objects.get(stu_num = stu_num).room_name
+    dor_num = models.RoomNum.objects.get(room_name=room_name).dormitory_num
+    room_id = models.RoomNum.objects.get(room_name=room_name).id
+
+    room_mate = []
+    room = models.RoomStuInfo.objects.get(room_id = room_id)
+    if room.room_mate1:
+        name = models.UserInfo.objects.get(stu_num=room.room_mate1).name
+        room_mate.append(name)
+    if room.room_mate2:
+        name = models.UserInfo.objects.get(stu_num=room.room_mate2).name
+        room_mate.append(name)
+    if room.room_mate3:
+        name = models.UserInfo.objects.get(stu_num=room.room_mate3).name
+        room_mate.append(name)
+    if room.room_mate4:
+        name = models.UserInfo.objects.get(stu_num=room.room_mate4).name
+        room_mate.append(name)
+    if room.room_mate5:
+        name = models.UserInfo.objects.get(stu_num=room.room_mate5).name
+        room_mate.append(name)
+    if room.room_mate6:
+        name = models.UserInfo.objects.get(stu_num=room.room_mate6).name
+        room_mate.append(name)
+
+    return render(request,"result.html",{"name":name, "dor_num":dor_num, "room_name":room_name, "room_mate":room_mate, "num":len(room_mate)})
