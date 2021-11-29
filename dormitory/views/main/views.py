@@ -127,13 +127,13 @@ def chooseajax(request):
             if len(room_stu.room_mate3) == 0:
                 room_stu.room_mate3 = room_mate[i]
                 break
-            if len(room_stu.room_mate4):
+            if len(room_stu.room_mate4) == 0:
                 room_stu.room_mate4 = room_mate[i]
                 break
-            if len(room_stu.room_mate5):
+            if len(room_stu.room_mate5) == 0:
                 room_stu.room_mate5 = room_mate[i]
                 break
-            if len(room_stu.room_mate6):
+            if len(room_stu.room_mate6) == 0:
                 room_stu.room_mate6 = room_mate[i]
         room_stu.save()
     except models.RoomStuInfo.DoesNotExist:
