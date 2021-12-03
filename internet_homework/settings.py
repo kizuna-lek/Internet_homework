@@ -135,16 +135,13 @@ LOGIN_URL = '/login'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CACHES = {
-
-"default": {
-
-"BACKEND":"django_redis.cache.RedisCache",
-
-        "LOCATION":"redis://django-redis:6379",
-
+    "default": {
+        "BACKEND":"django_redis.cache.RedisCache",
+        "TIMEOUT": None,
+        "LOCATION":"redis://172.17.0.2:6379/0",
         "OPTIONS": {
-
+            "MAX_ENTRIES": 300,
             "CLIENT_CLASS":"django_redis.client.DefaultClient",
-
         }
-}}
+    }
+}

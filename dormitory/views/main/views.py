@@ -4,28 +4,37 @@ from django.contrib import auth
 from dormitory import models
 from django.http import JsonResponse
 
+#使用redis减少访问数据库次数
+from django.core.cache import cache
+
 
 #记得改写，此处应该为room_num加起来
 @login_required
 def hello(request):
     current_user = request.user
     name = models.UserInfo.objects.get(stu_num = current_user.username).name
-    dor_list = []
-    dor_num = [5,8,9,13,14]
-    for i in dor_num:
-        temp = {}
-        temp.update({"dormitory_num":i})
-        if i == 8 or i == 9:
-            temp.update({"remarks":"仅供男生选择"})
-        else:
-            temp.update({"remarks":"无"})
-        release = models.RoomNum.objects.filter(dormitory_num=i)
-        release_room = 0
-        for j in release:
-            release_room = release_room + j.free_beds
-        temp.update({"release_room":release_room})
-        dor_list.append(temp)
-    return render(request,"hello.html",{"name":name,"dor_list":dor_list})
+    if cache.has_key('dor_list'):
+        dor_list = cache.get('dor_list')
+        return render(request,"hello.html",{"name":name, "dor_list":dor_list})
+    else:
+        dor_list = []
+        dor_num = [5,8,9,13,14]
+        for i in dor_num:
+            temp = {}
+            temp.update({"dormitory_num":i})
+            if i == 8 or i == 9:
+                temp.update({"remarks":"仅供男生选择"})
+            else:
+                temp.update({"remarks":"无"})
+            release = models.RoomNum.objects.filter(dormitory_num=i)
+            release_room = 0
+            for j in release:
+                release_room = release_room + j.free_beds
+            temp.update({"release_room":release_room})
+            dor_list.append(temp)
+            #添加缓存，时间设置1小时
+            cache.set('dor_list',dor_list,3600)
+        return render(request,"hello.html",{"name":name, "dor_list":dor_list})
 
 @login_required
 def logout(request):
@@ -96,6 +105,27 @@ def chooseajax(request):
         result = {"code":1003,"msg":"空余床位不足，抢宿舍失败，请减少队伍人数或选择其他宿舍楼"}
         return JsonResponse(result)
 
+    #更新缓存
+    dor_cache = cache.get('dor_list')
+    idx = eval(room_name[0])
+    if idx == 5:
+        dor_cache[0]["release_room"] -= (len(room_mate)+1)
+        cache.set('dor_list',dor_cache,3600)
+    elif idx == 8:
+        dor_cache[1]["release_room"] -= (len(room_mate)+1)
+        cache.set('dor_list',dor_cache,3600)
+    elif idx == 9:
+        dor_cache[2]["release_room"] -= (len(room_mate)+1)
+        cache.set('dor_list',dor_cache,3600)
+    elif idx == 13:
+        dor_cache[3]["release_room"] -= (len(room_mate)+1)
+        cache.set('dor_list',dor_cache,3600)
+    else:
+        dor_cache[4]["release_room"] -= (len(room_mate)+1)
+        cache.set('dor_list',dor_cache,3600)
+
+
+
     #下面为抢到宿舍，要修改的一些列数据库
     #user_info表
     user_havedor = models.UserInfo.objects.get(stu_num = stu_num)
@@ -159,7 +189,7 @@ def chooseajax(request):
 
     return JsonResponse(result)
 
-login_required
+@login_required
 def result(request):
     current_user = request.user
     stu_num = current_user.username
