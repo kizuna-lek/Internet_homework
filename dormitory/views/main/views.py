@@ -38,10 +38,21 @@ def chooseajax(request):
     current_user = request.user
     stu_num = current_user.username
     stu_male = models.UserInfo.objects.get(stu_num=stu_num).male
-    dor_num = eval(request.POST.get("dor_num"))
+    dor_num = request.POST.get("dor_num")
+    correct_dornum = [5,8,9,13,14]
 
     if models.UserInfo.objects.get(stu_num=stu_num).havedor:
         result = {"code":1004,"msg":"您已经抢到宿舍，无法复抢"}
+        return JsonResponse(result)
+
+    if len(dor_num) > 0:
+        dor_num = eval(dor_num)
+        if dor_num not in correct_dornum:
+            result = {"code":1006, "msg":"请输入正确的宿舍楼号"}
+
+            return JsonResponse(result)
+    else:
+        result = {"code":1006, "msg":"请输入正确的宿舍楼号"}
         return JsonResponse(result)
 
     row_roommate = []
@@ -148,7 +159,7 @@ def chooseajax(request):
 
     return JsonResponse(result)
 
-@login_required
+login_required
 def result(request):
     current_user = request.user
     stu_num = current_user.username
